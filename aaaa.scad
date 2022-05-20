@@ -1,15 +1,14 @@
 // custom variables
-
-$fn=15; // y no work at low fn??
+$fn=15; // when it starts working for no reason!
 radius=30;
 height=1.5*radius;
-minusT=10;
+minusT=9;
 startEnd=1;
-threadT=2;
+threadT=4;
 threadJ=1.5;
 byCycles=false;
 defaultCycles=15;
-defaultZstep=threadT+0.1; // must be greater than threadT!
+defaultZstep=threadT+0.5; // must be greater than threadT!
 separation=5;
 ringT=2;
 ringH=2;
@@ -17,22 +16,20 @@ holeR1=17.5;
 holeR2=15;
 holeH=5;
 tolerance=0.3;
-insertHole=1.5+tolerance;
-iHoleW=1+insertHole;
 rsep=2;
 pthick=1;
 
 // automatically calculated, ignore
-
-psize=pthick+insertHole/2;
-pheight=insertHole/2+startEnd+0.75*threadT;
 cycles = byCycles ? defaultCycles : (height-2*startEnd-threadT)/defaultZstep;
 zstep = byCycles ? (height-2*startEnd-threadT)/cycles : defaultZstep;
 ratio=minusT/height;
 astep=360/$fn;
 segments=floor(cycles*$fn);
 ringR=(radius-calcMinus(height/2))*0.75;
-insertR=radius-calcMinus(startEnd+threadT)+threadJ;
+insertHole=zstep-0.25*threadT;
+psize=pthick+insertHole/2;
+pheight=insertHole/2+startEnd+0.75*threadT;
+insertR=radius-calcMinus(pheight)+threadJ;
 
 echo("MINIMUM MAXIMUM CAPACITY = ")
 echo(cycles*2*PI*(radius-minusT));
@@ -40,16 +37,18 @@ echo(cycles*2*PI*(radius-minusT));
 split()
 difference() {
 	union() {
-	rotate([0,0,(180+($fn-2)*270)/$fn])
-	rotate([0,0,90-($fn-2)*180/$fn])
-		body();
-	thread();
-	translate([0,insertR,0])
-	mirror([1,0,0])
-	rotate([90,0,0])
-	rotate_extrude(angle=90)
-	translate([pheight,0])
-			circle(psize);
+		rotate([0,0,90-($fn-2)*180/$fn])
+			body();
+		thread();
+		translate([0,insertR,0])
+		mirror([1,0,0])
+		rotate([90,0,0])
+		rotate_extrude(angle=90) {
+			translate([pheight,0])
+				circle(psize);
+			translate([0,-psize])
+				square(2*psize);
+		}
 	}
 	translate([0,insertR,0])
 	mirror([1,0,0])
