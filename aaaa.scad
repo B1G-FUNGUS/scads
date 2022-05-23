@@ -1,10 +1,10 @@
 // custom variables
-$fn=15; // when it starts working for no reason!
-radius=30;
+$fn=50; // when it starts working for no reason!
+radius=25;
 height=1.5*radius;
-minusT=9;
+minusT=0.25*radius;
 startEnd=1;
-threadT=4;
+threadT=4.5;
 threadJ=1.5;
 byCycles=false;
 defaultCycles=15;
@@ -18,6 +18,7 @@ holeH=5;
 tolerance=0.3;
 rsep=2;
 pthick=1;
+split=false;
 
 // automatically calculated, ignore
 cycles = byCycles ? defaultCycles : (height-2*startEnd-threadT)/defaultZstep;
@@ -47,7 +48,7 @@ difference() {
 			translate([pheight,0])
 				circle(psize);
 			translate([0,-psize])
-				square(2*psize);
+				square([pheight,2*psize]);
 		}
 	}
 	translate([0,insertR,0])
@@ -117,24 +118,28 @@ function calcMinus(zDist)=
 	minusT*sin(acos(scaledH/minusT));
 
 module split() {
-	difference() {
-		union() {
-			translate([-radius-separation,0,0])
-				children();
-			translate([radius+separation,0,height])
-			mirror([0,0,1])
-				children();
-		}
+	if(split) {
 		difference() {
-			translate([0,0,0.75*height+0.1])
-				cube([4*radius+2*separation+0.1,2*radius+0.1,
-					height/2+0.1], center=true);
-			translate([radius+separation,0,height/2-0.1])
-				ring(tolerance);
-		}
-		translate([-radius-separation,0,height/2-ringH])
-			ring(0);
-	} 
+			union() {
+				translate([-radius-separation,0,0])
+					children();
+				translate([radius+separation,0,height])
+				mirror([0,0,1])
+					children();
+			}
+			difference() {
+				translate([0,0,0.75*height+0.1])
+					cube([4*radius+2*separation+0.1,2*radius+0.1,
+						height/2+0.1], center=true);
+				translate([radius+separation,0,height/2-0.1])
+					ring(tolerance);
+			}
+			translate([-radius-separation,0,height/2-ringH])
+				ring(0);
+		} 
+	} else {
+		children();	
+	}
 }
 
 module ring(tol) {
